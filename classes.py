@@ -111,4 +111,38 @@ class DbReader:
         convert_result = self.convert_results_to_view(result, 'title', 'description')
         return convert_result
 
-print(DbReader().get_films_by_type_year_genre('movie','2015','comedies'))
+    def get_companions_of_two_actors(self, actor_one, actor_two):
+        # получил касты всех фильмов, где снимались актер1 и актер2
+        query = f"""
+                    SELECT 
+                        "cast"
+                    FROM 
+                        netflix
+                    WHERE
+                        LOWER("cast") LIKE  LOWER('%{actor_one}%') AND
+                        LOWER("cast") Like LOWER('%{actor_two}%')
+                    ORDER BY title ASC 
+                """
+        all_casts = self.db_request(query)
+
+
+        all_actors: dict = {}
+        for cast in all_casts:
+            #разделил и отформатировал актеров
+            actors_list = str(cast).split(', ')
+            actors_set = set(map(lambda element: ''.join(char for char in element if char.isalpha() or char.isspace()), actors_list))
+            #убрал двух искомых актеров из сета
+            companions = actors_set - {actor_one, actor_two}
+
+            for companion in companions:
+                if count:=all_actors.get(companion):
+                    all_actors.update({companion: count+1})
+                else:
+                    all_actors.update({companion: 1})
+
+        twice_or_more_actors = []
+        for actor, count in all_actors.items():
+            if count >=2:
+                twice_or_more_actors.append(actor)
+
+        return twice_or_more_actors
