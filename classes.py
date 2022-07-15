@@ -132,10 +132,10 @@ class DbReader:
             actors_list = str(cast).split(', ')
             actors_set = set(map(lambda element: ''.join(char for char in element if char.isalpha() or char.isspace()), actors_list))
             #убрал двух искомых актеров из сета
-            companions = actors_set - {actor_one, actor_two}
+            companions = actors_set - {actor_one.title(), actor_two.title()}
 
             for companion in companions:
-                if count:=all_actors.get(companion):
+                if count := all_actors.get(companion):
                     all_actors.update({companion: count+1})
                 else:
                     all_actors.update({companion: 1})
@@ -146,3 +146,6 @@ class DbReader:
                 twice_or_more_actors.append(actor)
 
         return twice_or_more_actors
+
+
+# print(DbReader().get_companions_of_two_actors('talia shire', 'Sylvester stallone'))
